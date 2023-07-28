@@ -4,9 +4,9 @@
 - This is a virtual desktop controller.
 ## How to use
 - Start this application, then create 9 virtual desktop.
-- You can move 3x3 desk top with Ctrl + up/down/right/left.
+- You can move 3x3 tiled viertual desktop with Ctrl + up/down/right/left.
 - Move active window to another desktop with Ctrl + 1-9
-- Desk top number placement is here.
+- Desktop number placement is here.
   
  | 1 | 2 | 3 | 
  |:-:|:-:|:-:|
