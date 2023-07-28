@@ -83,7 +83,15 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\AppIcon.ico" />
+    <None Include="Resources\1.ico" />
+    <None Include="Resources\2.ico" />
+    <None Include="Resources\3.ico" />
+    <None Include="Resources\4.ico" />
+    <None Include="Resources\5.ico" />
+    <None Include="Resources\6.ico" />
+    <None Include="Resources\7.ico" />
+    <None Include="Resources\8.ico" />
+    <None Include="Resources\9.ico" />
     <Content Include="TextTemplate.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

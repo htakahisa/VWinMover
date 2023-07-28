@@ -921,6 +921,43 @@ namespace VDeskTool
             //await Task.Delay(100);
             VirtualDesktop.Desktop.FromIndex(idx).MakeVisible();
 
+            // icon の修正
+            if (idx == 0)
+            {
+                notifyIcon.Icon = VWinMover.Properties.Resources._1;
+            } else if (idx== 1)
+            {
+                notifyIcon.Icon = VWinMover.Properties.Resources._2;
+            }
+            else if (idx == 2)
+            {
+                notifyIcon.Icon = VWinMover.Properties.Resources._3;
+            }
+            else if (idx == 3)
+            {
+                notifyIcon.Icon = VWinMover.Properties.Resources._4;
+            }
+            else if (idx == 4)
+            {
+                notifyIcon.Icon = VWinMover.Properties.Resources._5;
+            }
+            else if (idx == 5)
+            {
+                notifyIcon.Icon = VWinMover.Properties.Resources._6;
+            }
+            else if (idx == 6)
+            {
+                notifyIcon.Icon = VWinMover.Properties.Resources._7;
+            }
+            else if (idx == 7)
+            {
+                notifyIcon.Icon = VWinMover.Properties.Resources._8;
+            }
+            else if (idx == 8)
+            {
+                notifyIcon.Icon = VWinMover.Properties.Resources._9;
+            }
+
             current = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.Current);
 
         }
@@ -1019,16 +1056,16 @@ namespace VDeskTool
 
             }
 
-            NotifyIcon icon = new NotifyIcon();
-            icon.Icon = VWinMover.Properties.Resources.AppIcon;
-            icon.Visible = true;
-            icon.Text = "常駐アプリテスト";
+            notifyIcon = new NotifyIcon();
+            notifyIcon.Icon = VWinMover.Properties.Resources._1;
+            notifyIcon.Visible = true;
+            notifyIcon.Text = "常駐アプリテスト";
             ContextMenuStrip menu = new ContextMenuStrip();
             ToolStripMenuItem menuItem = new ToolStripMenuItem();
             menuItem.Text = "&終了";
             menuItem.Click += new EventHandler(Close_Click);
             menu.Items.Add(menuItem);
-            icon.ContextMenuStrip = menu;
+            notifyIcon.ContextMenuStrip = menu;
 
         }
 
