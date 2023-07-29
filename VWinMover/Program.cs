@@ -8,6 +8,7 @@ using System.Text;
 // set attributes
 using VirtualDesktop;
 using VWinMover;
+using System.Configuration;
 
 
 
@@ -730,6 +731,10 @@ namespace VDeskTool
         public MainForm()
         {
 
+            hight = VWinMover.Properties.Settings.Default.window_height;
+            width = VWinMover.Properties.Settings.Default.window_width;
+
+
             this.ShowInTaskbar = false;
             this.setComponents();
 
@@ -774,7 +779,7 @@ namespace VDeskTool
                 }
                 else if (e.KeyCode == Keys.Down)
                 {
-                    int nextId = current + 3;
+                    int nextId = current + width;
                     if (current + 1 <= width * hight - width)
                     {
                         Task.Run(() =>
@@ -785,7 +790,7 @@ namespace VDeskTool
                 }
                 else if (e.KeyCode == Keys.Up)
                 {
-                    int nextId = current - 3;
+                    int nextId = current - width;
                     if (current + 1 >= width + 1)
                     {
                         Task.Run(() =>
@@ -917,12 +922,18 @@ namespace VDeskTool
 
     public class Program
     {
+        
+
         [STAThread]
         static void Main()
         {
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+
+
+
 
             MainForm mainForm = new MainForm();
             mainForm.WindowState = FormWindowState.Minimized; // アプリを最小化
