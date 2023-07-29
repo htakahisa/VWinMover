@@ -1,101 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
-
-using System;
-using System.Runtime.InteropServices;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Text;
 
 // set attributes
-using System.Reflection;
 using VirtualDesktop;
 using VWinMover;
 
-
-//namespace VWinMover {
-
-//public class VirtualDesktopManager
-//{
-//    public static readonly IVirtualDesktopManager DesktopManager;
-
-//    static VirtualDesktopManager()
-//    {
-//        var type = Type.GetTypeFromCLSID(new Guid("aa509086-5ca9-4c25-8f95-589d3c07b48a"));
-//        DesktopManager = (IVirtualDesktopManager)Activator.CreateInstance(type);
-//    }
-//}
-
-//[InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("a5cd92ff-29be-454c-8d04-d82879fb3f1b")]
-//public interface IVirtualDesktopManager
-//{
-//    bool IsWindowOnCurrentVirtualDesktop(IntPtr topLevelWindow);
-//    Guid GetWindowDesktopId(IntPtr topLevelWindow);
-//    void MoveWindowToDesktop(IntPtr topLevelWindow, ref Guid desktopId);
-//}
-
-//[ComImport]
-//[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-//[Guid("536D3495-B208-4CC9-AE26-DE8111275BF8")]
-//internal interface IVirtualDesktop
-//{
-//    bool IsViewVisible(IApplicationView view);
-//    Guid GetId();
-//    IntPtr Unknown1();
-//    [return: MarshalAs(UnmanagedType.HString)]
-//    string GetName();
-//    [return: MarshalAs(UnmanagedType.HString)]
-//    string GetWallpaperPath();
-//}
-
-
-//public class MainForm : Form
-//{
-//    public MainForm()
-//    {
-//        KeyPreview = true; // Enable form to receive key events
-//        KeyDown += MainForm_KeyDown;
-//    }
-
-//    private void MainForm_KeyDown(object sender, KeyEventArgs e)
-//    {
-//        if (e.KeyCode == Keys.F12) // Change the key to your preferred hotkey
-//        {
-//            //VirtualDesktopManager.MoveToNextVirtualDesktop();
-//            var result = VirtualDesktopManager.DesktopManager.IsWindowOnCurrentVirtualDesktop(this.Handle);
-//            //MessageBox.Show(result.ToString());
-
-
-//            String id = VirtualDesktopManager.DesktopManager.GetWindowDesktopId(this.Handle).ToString();
-//            Console.WriteLine(id);
-//            var guid = new Guid(id);
-//            // 6ceb2e2f-662c-4280-ad56-a03951f295da
-//            //VirtualDesktopManager.DesktopManager.MoveWindowToDesktop(IntPtr.Zero, ref guid);
-
-//            DesktopManager.VirtualDesktopManagerInternal.MoveDesktop(ivd, IntPtr.Zero, index);
-//        }
-//    }
-//}
-
-//public class Program
-//{
-//    [STAThread]
-//    static void Main()
-//    {
-//        Application.EnableVisualStyles();
-//        Application.Run(new MainForm());
-//    }
-//}
-
-// Author: Markus Scholtes, 2023
-// Version 1.13, 2023-06-25
-// Version for Windows 11 22H2
-// Compile with:
-// C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe VirtualDesktop11.cs
 
 
 
@@ -804,23 +717,18 @@ namespace VirtualDesktop
 
 namespace VDeskTool
 {
-    //static class Program
-    //{
-    //	static bool verbose = true;
-    //	static bool breakonerror = true;
-    //	static bool wrapdesktops = false;
-    //	static int rc = 0;
 
     public class MainForm : Form
     {
+
+        private int hight = 3;
+        private int width = 3;
+
         private KeyboardHook2 keyboardHook;
         private NotifyIcon notifyIcon;
-        private ContextMenu contextMenu;
-        int current = 0;
+        private int current = 0;
         public MainForm()
         {
-            KeyPreview = true; // Enable form to receive key events
-            KeyDown += MainForm_KeyDown;
 
             this.ShowInTaskbar = false;
             this.setComponents();
@@ -830,87 +738,73 @@ namespace VDeskTool
             keyboardHook = new KeyboardHook2();
 
             keyboardHook.KeyDown += KeyboardHook_KeyDown;
-            keyboardHook.KeyUp += KeyboardHook_KeyUp;
-            //// Ctrlキーの状態を初期化
-            //isCtrlKeyPressed = false;
-
+            
             // キーボードフックを開始
             KeyboardHook.Hook();
-
-
         }
-        // NotifyIconをクリックしたときの処理
-        private void OnNotifyIconClick(object sender, EventArgs e)
-        {
-            MessageBox.Show("タスクトレイアイコンがクリックされました！");
-        }
-
-        private int hight = 3;
-        private int width = 3;
-
 
         // キーボードフックのイベントハンドラ
         private void KeyboardHook_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Right && ModifierKeys == Keys.Control)
+            if (ModifierKeys == Keys.Control)
             {
-                int nextId = current + 1;
-                if ((current + 1) % width != 0)
+
+                if (e.KeyCode == Keys.Right)
                 {
-                    Console.WriteLine(current + 1 % width);
-                    Task.Run(() =>
+                    int nextId = current + 1;
+                    if ((current + 1) % width != 0)
+                    {
+                        Console.WriteLine(current + 1 % width);
+                        Task.Run(() =>
+                                 DoAsyncWork(nextId)
+
+                            );
+                    }
+                }
+                else if (e.KeyCode == Keys.Left)
+                {
+                    int nextId = current - 1;
+                    if ((current + 1) % width != 1)
+                    {
+                        Task.Run(() =>
+                                 DoAsyncWork(nextId)
+
+                            );
+                    }
+                }
+                else if (e.KeyCode == Keys.Down)
+                {
+                    int nextId = current + 3;
+                    if (current + 1 <= width * hight - width)
+                    {
+                        Task.Run(() =>
                              DoAsyncWork(nextId)
 
                         );
+                    }
                 }
-            }
-            else if (e.KeyCode == Keys.Left && ModifierKeys == Keys.Control)
-            {
-                int nextId = current - 1;
-                if ((current + 1) % width != 1)
+                else if (e.KeyCode == Keys.Up)
                 {
-                    Task.Run(() =>
+                    int nextId = current - 3;
+                    if (current + 1 >= width + 1)
+                    {
+                        Task.Run(() =>
                              DoAsyncWork(nextId)
 
                         );
+                    }
                 }
-            }
-            else if (e.KeyCode == Keys.Down && ModifierKeys == Keys.Control)
-            {
-                int nextId = current + 3;
-                if (current + 1 <= width * hight - width)
+                // アクティブウインドウの移動
+                else if (e.KeyCode == Keys.D1 || e.KeyCode == Keys.D2 || e.KeyCode == Keys.D3
+                    || e.KeyCode == Keys.D4 || e.KeyCode == Keys.D5 || e.KeyCode == Keys.D6 || e.KeyCode == Keys.D7 || e.KeyCode == Keys.D8
+                    || e.KeyCode == Keys.D9)
                 {
+                    int keyValue = e.KeyCode.GetHashCode() - 48 - 1;
                     Task.Run(() =>
-                         DoAsyncWork(nextId)
-
+                         MoveActiveWindow(keyValue)
                     );
                 }
             }
-            else if (e.KeyCode == Keys.Up && ModifierKeys == Keys.Control)
-            {
-                int nextId = current - 3;
-                if (current + 1 >= width + 1)
-                {
-                    Task.Run(() =>
-                         DoAsyncWork(nextId)
-
-                    );
-                }
-            }
-            // アクティブウインドウの移動
-            else if (ModifierKeys == Keys.Control && (e.KeyCode == Keys.D1 || e.KeyCode == Keys.D2 || e.KeyCode == Keys.D3
-                || e.KeyCode == Keys.D4 || e.KeyCode == Keys.D5 || e.KeyCode == Keys.D6 || e.KeyCode == Keys.D7 || e.KeyCode == Keys.D8
-                || e.KeyCode == Keys.D9))
-            {
-                int keyValue = e.KeyCode.GetHashCode() - 48 -1;
-                Task.Run(() =>
-                     MoveActiveWindow(keyValue)
-                );
-            }
-
-        }
-        private void KeyboardHook_KeyUp(object sender, KeyEventArgs e)
-        {
 
         }
 
@@ -978,62 +872,10 @@ namespace VDeskTool
             DesktopManager.VirtualDesktopManagerInternal.SetDesktopIsPerMonitor(true);
 
 
-
             base.OnFormClosing(e);
         }
 
-        private void MainForm_KeyDown(object sender, KeyEventArgs e)
-        {
 
-
-
-            if (e.KeyCode == Keys.Right && e.Control) // Change the key to your preferred hotkey
-            {
-                ////VirtualDesktopManager.MoveToNextVirtualDesktop();
-                //var result = VirtualDesktopManager.DesktopManager.IsWindowOnCurrentVirtualDesktop(this.Handle);
-                ////MessageBox.Show(result.ToString());
-
-
-                //String id = VirtualDesktopManager.DesktopManager.GetWindowDesktopId(this.Handle).ToString();
-                //Console.WriteLine(id);
-                //var guid = new Guid(id);
-                //// 6ceb2e2f-662c-4280-ad56-a03951f295da
-                ////VirtualDesktopManager.DesktopManager.MoveWindowToDesktop(IntPtr.Zero, ref guid);
-
-                //DesktopManager.VirtualDesktopManagerInternal.MoveDesktop(ivd, IntPtr.Zero, index);
-                //DesktopManager.VirtualDesktopManagerInternal.SwitchDesktop(IntPtr.Zero, ivd);
-                //VirtualDesktop.Desktop.FromIndex(1).MakeVisible();
-
-                VirtualDesktop.Desktop.FromIndex(1).MakeVisible();
-
-            }
-            if (e.KeyCode == Keys.Left && e.Control) // Change the key to your preferred hotkey
-            {
-                ////VirtualDesktopManager.MoveToNextVirtualDesktop();
-                //var result = VirtualDesktopManager.DesktopManager.IsWindowOnCurrentVirtualDesktop(this.Handle);
-                ////MessageBox.Show(result.ToString());
-
-
-                //String id = VirtualDesktopManager.DesktopManager.GetWindowDesktopId(this.Handle).ToString();
-                //Console.WriteLine(id);
-                //var guid = new Guid(id);
-                //// 6ceb2e2f-662c-4280-ad56-a03951f295da
-                ////VirtualDesktopManager.DesktopManager.MoveWindowToDesktop(IntPtr.Zero, ref guid);
-
-                //DesktopManager.VirtualDesktopManagerInternal.MoveDesktop(ivd, IntPtr.Zero, index);
-                //DesktopManager.VirtualDesktopManagerInternal.SwitchDesktop(IntPtr.Zero, ivd);
-                //VirtualDesktop.Desktop.FromIndex(1).MakeVisible();
-
-                VirtualDesktop.Desktop.FromIndex(0).MakeVisible();
-
-            }
-
-            if (e.KeyCode == Keys.F12)
-            {
-                MessageBox.Show(VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.Current).ToString());
-
-            }
-        }
         private void Close_Click(object sender, EventArgs e)
         {
             Application.Exit();
@@ -1059,7 +901,7 @@ namespace VDeskTool
             notifyIcon = new NotifyIcon();
             notifyIcon.Icon = VWinMover.Properties.Resources._1;
             notifyIcon.Visible = true;
-            notifyIcon.Text = "常駐アプリテスト";
+            notifyIcon.Text = "VWinMover";
             ContextMenuStrip menu = new ContextMenuStrip();
             ToolStripMenuItem menuItem = new ToolStripMenuItem();
             menuItem.Text = "&終了";
@@ -1078,8 +920,7 @@ namespace VDeskTool
         [STAThread]
         static void Main()
         {
-            //            Application.EnableVisualStyles();
-            //Application.Run(new MainForm());
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -1283,107 +1124,7 @@ namespace VDeskTool
 
         static void HelpScreen()
         {
-            Console.WriteLine("VirtualDesktop.exe\t\t\t\tMarkus Scholtes, 2023, v1.13\n");
-
-            Console.WriteLine("Command line tool to manage the virtual desktops of Windows 11.");
-            Console.WriteLine("Parameters can be given as a sequence of commands. The result - most of the");
-            Console.WriteLine("times the number of the processed desktop - can be used as input for the next");
-            Console.WriteLine("parameter. The result of the last command is returned as error level.");
-            Console.WriteLine("Virtual desktop numbers start with 0.\n");
-            Console.WriteLine("Parameters (leading / can be omitted or - can be used instead):\n");
-            Console.WriteLine("/Help /h /?      this help screen.");
-            Console.WriteLine("/Verbose /Quiet  enable verbose (default) or quiet mode (short: /v and /q).");
-            Console.WriteLine("/Break /Continue break (default) or continue on error (short: /b and /co).");
-            Console.WriteLine("/List            list all virtual desktops (short: /li).");
-            Console.WriteLine("/Count           get count of virtual desktops to pipeline (short: /c).");
-            Console.WriteLine("/GetDesktop:<n|s> get number of virtual desktop <n> or desktop with text <s> in");
-            Console.WriteLine("                   name to pipeline (short: /gd).");
-            Console.WriteLine("/GetCurrentDesktop  get number of current desktop to pipeline (short: /gcd).");
-            Console.WriteLine("/Name[:<s>]      set name of desktop with number in pipeline (short: /na).");
-            Console.WriteLine("/Wallpaper[:<s>] set wallpaper path of desktop with number in pipeline (short:");
-            Console.WriteLine("                   /wp).");
-            Console.WriteLine("/AllWallpapers:<s> set wallpaper path of all desktops (short: /awp).");
-            Console.WriteLine("/IsVisible[:<n|s>] is desktop number <n>, desktop with text <s> in name or with");
-            Console.WriteLine("                   number in pipeline visible (short: /iv)? Returns 0 for");
-            Console.WriteLine("                   visible and 1 for invisible.");
-            Console.WriteLine("/Switch[:<n|s>]  switch to desktop with number <n>, desktop with text <s> in");
-            Console.WriteLine("                   name or with number in pipeline (short: /s).");
-            Console.WriteLine("/Left            switch to virtual desktop to the left of the active desktop");
-            Console.WriteLine("                   (short: /l).");
-            Console.WriteLine("/Right           switch to virtual desktop to the right of the active desktop");
-            Console.WriteLine("                   (short: /ri).");
-            Console.WriteLine("/Wrap /NoWrap    /Left or /Right switch over or generate an error when the edge");
-            Console.WriteLine("                   is reached (default)(short /w and /nw).");
-            Console.WriteLine("/New             create new desktop (short: /n). Number is stored in pipeline.");
-            Console.WriteLine("/Remove[:<n|s>]  remove desktop number <n>, desktop with text <s> in name or");
-            Console.WriteLine("                   desktop with number in pipeline (short: /r).");
-            Console.WriteLine("/RemoveAll       remove all desktops but visible (short: /ra).");
-            Console.WriteLine("/SwapDesktop:<n|s>  swap desktop in pipeline with desktop number <n> or desktop");
-            Console.WriteLine("                   with text <s> in name (short: /sd).");
-            Console.WriteLine("/MoveDesktop:<n|s>  move desktop in pipeline to desktop number <n> or desktop");
-            Console.WriteLine("                   with text <s> in name (short: /md).");
-            Console.WriteLine("/MoveWindowsToDesktop:<n|s>  move windows on desktop in pipeline to desktop");
-            Console.WriteLine("                   number <n> or desktop with text <s> in name (short: /mwtd).");
-            Console.WriteLine("/MoveWindow:<s|n>  move process with name <s> or id <n> to desktop with number");
-            Console.WriteLine("                   in pipeline (short: /mw).");
-            Console.WriteLine("/MoveWindowHandle:<s|n>  move window with text <s> in title or handle <n> to");
-            Console.WriteLine("                   desktop with number in pipeline (short: /mwh).");
-            Console.WriteLine("/MoveActiveWindow  move active window to desktop with number in pipeline");
-            Console.WriteLine("                   (short: /maw).");
-            Console.WriteLine("/GetDesktopFromWindow:<s|n>  get desktop number where process with name <s> or");
-            Console.WriteLine("                   id <n> is displayed (short: /gdfw).");
-            Console.WriteLine("/GetDesktopFromWindowHandle:<s|n>  get desktop number where window with text");
-            Console.WriteLine("                   <s> in title or handle <n> is displayed (short: /gdfwh).");
-            Console.WriteLine("/IsWindowOnDesktop:<s|n>  check if process with name <s> or id <n> is on");
-            Console.WriteLine("                   desktop with number in pipeline (short: /iwod). Returns 0");
-            Console.WriteLine("                   for yes, 1 for no.");
-            Console.WriteLine("/IsWindowHandleOnDesktop:<s|n>  check if window with text <s> in title or");
-            Console.WriteLine("                   handle <n> is on desktop with number in pipeline");
-            Console.WriteLine("                   (short: /iwhod). Returns 0 for yes, 1 for no.");
-            Console.WriteLine("/ListWindowsOnDesktop[:<n|s>]  list handles of windows on desktop number <n>,");
-            Console.WriteLine("                   desktop with text <s> in name or desktop with number in");
-            Console.WriteLine("                   pipeline (short: /lwod).");
-            Console.WriteLine("/CloseWindowsOnDesktop[:<n|s>]  close windows on desktop number <n>, desktop");
-            Console.WriteLine("                   with text <s> in name or desktop with number in pipeline");
-            Console.WriteLine("                   (short: /cwod).");
-            Console.WriteLine("/PinWindow:<s|n>  pin process with name <s> or id <n> to all desktops");
-            Console.WriteLine("                   (short: /pw).");
-            Console.WriteLine("/PinWindowHandle:<s|n>  pin window with text <s> in title or handle <n> to all");
-            Console.WriteLine("                   desktops (short: /pwh).");
-            Console.WriteLine("/UnPinWindow:<s|n>  unpin process with name <s> or id <n> from all desktops");
-            Console.WriteLine("                   (short: /upw).");
-            Console.WriteLine("/UnPinWindowHandle:<s|n>  unpin window with text <s> in title or handle <n>");
-            Console.WriteLine("                   from all desktops (short: /upwh).");
-            Console.WriteLine("/IsWindowPinned:<s|n>  check if process with name <s> or id <n> is pinned to");
-            Console.WriteLine("                   all desktops (short: /iwp). Returns 0 for yes, 1 for no.");
-            Console.WriteLine("/IsWindowHandlePinned:<s|n>  check if window with text <s> in title or handle");
-            Console.WriteLine("                   <n> is pinned to all desktops (short: /iwhp). Returns 0 for");
-            Console.WriteLine("                   yes, 1 for no.");
-            Console.WriteLine("/PinApplication:<s|n>  pin application with name <s> or id <n> to all desktops");
-            Console.WriteLine("                   (short: /pa).");
-            Console.WriteLine("/UnPinApplication:<s|n>  unpin application with name <s> or id <n> from all");
-            Console.WriteLine("                   desktops (short: /upa).");
-            Console.WriteLine("/IsApplicationPinned:<s|n>  check if application with name <s> or id <n> is");
-            Console.WriteLine("                   pinned to all desktops (short: /iap). Returns 0 for yes, 1");
-            Console.WriteLine("                   for no.");
-            Console.WriteLine("/Calc:<n>        add <n> to result, negative values are allowed (short: /ca).");
-            Console.WriteLine("/WaitKey         wait for key press (short: /wk).");
-            Console.WriteLine("/Sleep:<n>       wait for <n> milliseconds (short: /sl).\n");
-            Console.WriteLine("Hint: Instead of a desktop name you can use LAST or *LAST* to select the last");
-            Console.WriteLine("virtual desktop.");
-            Console.WriteLine("Hint: Insert ^^ somewhere in window title parameters to prevent finding the own");
-            Console.WriteLine("window. ^ is removed before searching window titles.\n");
-            Console.WriteLine("Examples:");
-            Console.WriteLine("Virtualdesktop.exe /LIST");
-            Console.WriteLine("Virtualdesktop.exe \"-Switch:Desktop 2\"");
-            Console.WriteLine("Virtualdesktop.exe -New -Switch -GetCurrentDesktop");
-            Console.WriteLine("Virtualdesktop.exe Q N /MOVEACTIVEWINDOW /SWITCH");
-            Console.WriteLine("Virtualdesktop.exe sleep:200 gd:1 mw:notepad s");
-            Console.WriteLine("Virtualdesktop.exe /Count /continue /Remove /Remove /Count");
-            Console.WriteLine("Virtualdesktop.exe /Count /Calc:-1 /Switch");
-            Console.WriteLine("VirtualDesktop.exe -IsWindowPinned:cmd");
-            Console.WriteLine("if ERRORLEVEL 1 VirtualDesktop.exe PinWindow:cmd");
-            Console.WriteLine("Virtualdesktop.exe -GetDesktop:*last* \"-MoveWindowHandle:note^^pad\"");
+            
         }
 
     }
