@@ -6,6 +6,7 @@
 - Start this application, then create 9 virtual desktop. (You can change with VWinMover.exe.config)
 - You can move 3x3 tiled viertual desktop with Ctrl + up/down/right/left.
 - Move active window to another desktop with Ctrl + 1-9
+- Move active window and switch desktop with Ctrl + shit + up/down/right/left.
 - Desktop number placement is here.
   
  | 1 | 2 | 3 | 
