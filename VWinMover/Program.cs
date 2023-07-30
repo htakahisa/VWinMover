@@ -743,7 +743,7 @@ namespace VDeskTool
             keyboardHook = new KeyboardHook2();
 
             keyboardHook.KeyDown += KeyboardHook_KeyDown;
-            
+
             // キーボードフックを開始
             KeyboardHook.Hook();
         }
@@ -751,7 +751,9 @@ namespace VDeskTool
         // キーボードフックのイベントハンドラ
         private void KeyboardHook_KeyDown(object sender, KeyEventArgs e)
         {
-            if (ModifierKeys == Keys.Control)
+
+
+            if (ModifierKeys == Keys.Control || ModifierKeys == (Keys.Control | Keys.Shift))
             {
 
                 if (e.KeyCode == Keys.Right)
@@ -759,11 +761,17 @@ namespace VDeskTool
                     int nextId = current + 1;
                     if ((current + 1) % width != 0)
                     {
-                        Console.WriteLine(current + 1 % width);
-                        Task.Run(() =>
-                                 DoAsyncWork(nextId)
+                        if (ModifierKeys == (Keys.Control | Keys.Shift))
+                        {
+                            Task.Run(() =>
+                                MoveActiveWindow(nextId)
+                             );
+                        }
 
-                            );
+
+                        Task.Run(() =>
+                            DoAsyncWork(nextId)
+                    );
                     }
                 }
                 else if (e.KeyCode == Keys.Left)
@@ -771,6 +779,12 @@ namespace VDeskTool
                     int nextId = current - 1;
                     if ((current + 1) % width != 1)
                     {
+                        if (ModifierKeys == (Keys.Control | Keys.Shift))
+                        {
+                            Task.Run(() =>
+                                MoveActiveWindow(nextId)
+                             );
+                        }
                         Task.Run(() =>
                                  DoAsyncWork(nextId)
 
@@ -782,6 +796,12 @@ namespace VDeskTool
                     int nextId = current + width;
                     if (current + 1 <= width * hight - width)
                     {
+                        if (ModifierKeys == (Keys.Control | Keys.Shift))
+                        {
+                            Task.Run(() =>
+                                MoveActiveWindow(nextId)
+                             );
+                        }
                         Task.Run(() =>
                              DoAsyncWork(nextId)
 
@@ -793,6 +813,12 @@ namespace VDeskTool
                     int nextId = current - width;
                     if (current + 1 >= width + 1)
                     {
+                        if (ModifierKeys == (Keys.Control | Keys.Shift))
+                        {
+                            Task.Run(() =>
+                                MoveActiveWindow(nextId)
+                             );
+                        }
                         Task.Run(() =>
                              DoAsyncWork(nextId)
 
@@ -824,7 +850,8 @@ namespace VDeskTool
             if (idx == 0)
             {
                 notifyIcon.Icon = VWinMover.Properties.Resources._1;
-            } else if (idx== 1)
+            }
+            else if (idx == 1)
             {
                 notifyIcon.Icon = VWinMover.Properties.Resources._2;
             }
@@ -922,7 +949,7 @@ namespace VDeskTool
 
     public class Program
     {
-        
+
 
         [STAThread]
         static void Main()
@@ -1135,7 +1162,7 @@ namespace VDeskTool
 
         static void HelpScreen()
         {
-            
+
         }
 
     }
