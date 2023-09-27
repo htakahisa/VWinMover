@@ -485,8 +485,19 @@ namespace VirtualDesktop
 
 		public static void RemoveAll()
 		{ // remove all desktops but visible
-		  // ***** To reimplement  since not supported by API anymore
-		  // DesktopManager.VirtualDesktopManagerInternal.SetDesktopIsPerMonitor(true);
+			int desktopcount = DesktopManager.VirtualDesktopManagerInternal.GetCount();
+			int desktopcurrent = DesktopManager.GetDesktopIndex(DesktopManager.VirtualDesktopManagerInternal.GetCurrentDesktop());
+
+			if (desktopcurrent < desktopcount - 1)
+			{ // remove all desktops "right" from current
+				for (int i = desktopcount - 1; i > desktopcurrent; i--)
+					DesktopManager.VirtualDesktopManagerInternal.RemoveDesktop(DesktopManager.GetDesktop(i), DesktopManager.VirtualDesktopManagerInternal.GetCurrentDesktop());
+			}
+			if (desktopcurrent > 0)
+			{ // remove all desktops "left" from current
+				for (int i = 0; i < desktopcurrent; i++)
+					DesktopManager.VirtualDesktopManagerInternal.RemoveDesktop(DesktopManager.GetDesktop(0), DesktopManager.VirtualDesktopManagerInternal.GetCurrentDesktop());
+			}
 		}
 
 		public void Move(int index)
@@ -902,7 +913,7 @@ namespace VDeskTool
         {
 
 			// 現在のデスクトップを残して削除
-			//DesktopManager.VirtualDesktopManagerInternal.SetDesktopIsPerMonitor(true);
+			VirtualDesktop.Desktop.RemoveAll();
 
 			base.OnFormClosing(e);
         }
@@ -967,8 +978,7 @@ namespace VDeskTool
         static void Application_Exit(object sender, EventArgs e)
         {
 			// 現在のデスクトップを残して削除
-			//DesktopManager.VirtualDesktopManagerInternal.SetDesktopIsPerMonitor(true);
-			
+			VirtualDesktop.Desktop.RemoveAll();
 
 		}
 
