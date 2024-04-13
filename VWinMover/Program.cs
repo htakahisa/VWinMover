@@ -1,7 +1,8 @@
 ﻿
 // TODO : check https://github.com/MScholtes/VirtualDesktop/blob/master/VirtualDesktop11.cs
 // TODO : copy this Program.cs to ProgramX.cs
-// TODO : reflesh "VirtualDesktop" namespace on this Program.cs
+// TODO : refresh "VirtualDesktop" namespace on this Program.cs
+// TODO : might be refresh from "refresh below" to end.
 
 using System;
 using System.Collections.Generic;
@@ -771,10 +772,13 @@ namespace VDeskTool
 
             keyboardHook.KeyDown += KeyboardHook_KeyDown;
 
-        }
+			
 
-        // キーボードフックのイベントハンドラ
-        private void KeyboardHook_KeyDown(object sender, KeyEventArgs e)
+
+		}
+
+		// キーボードフックのイベントハンドラ
+		private void KeyboardHook_KeyDown(object sender, KeyEventArgs e)
         {
 
 
@@ -962,7 +966,10 @@ namespace VDeskTool
             menu.Items.Add(menuItem);
             notifyIcon.ContextMenuStrip = menu;
 
-        }
+
+			this.Visible = false; // ウィンドウを非表示にする
+			this.FormBorderStyle = FormBorderStyle.FixedToolWindow; // ウィンドウのスタイルをツールウィンドウに設定
+		}
 
 
 
@@ -996,7 +1003,7 @@ namespace VDeskTool
 
 
 
-        /*** TODO : copy below */
+        /*** TODO : refresh below */
 
         static int GetMainWindowHandle(string ProcessName)
         { // retrieve main window handle to process name
