@@ -1,4 +1,9 @@
-﻿using System;
+﻿
+// TODO : check https://github.com/MScholtes/VirtualDesktop/blob/master/VirtualDesktop11.cs
+// TODO : copy this Program.cs to ProgramX.cs
+// TODO : reflesh "VirtualDesktop" namespace on this Program.cs
+
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -10,13 +15,20 @@ using VirtualDesktop;
 using VWinMover;
 using System.Configuration;
 
-
-
+// set attributes
+//using System.Reflection;
+//[assembly: AssemblyTitle("Command line tool to manage virtual desktops")]
+//[assembly: AssemblyDescription("Command line tool to manage virtual desktops")]
+//[assembly: AssemblyConfiguration("")]
+//[assembly: AssemblyCompany("MS")]
+//[assembly: AssemblyProduct("VirtualDesktop")]
+//[assembly: AssemblyCopyright("� Markus Scholtes 2024")]
+//[assembly: AssemblyTrademark("")]
+//[assembly: AssemblyCulture("")]
+//[assembly: AssemblyVersion("1.17.0.0")]
+//[assembly: AssemblyFileVersion("1.17.0.0")]
 
 // Based on http://stackoverflow.com/a/32417530, Windows 10 SDK, github project Grabacr07/VirtualDesktop and own research
-// TODO : comment out "ShowWindow"
-// TODO : reflesh "VirtualDesktop" namespace
-// TODO : reflesh "copy below" thing.
 
 namespace VirtualDesktop
 {
@@ -154,7 +166,7 @@ namespace VirtualDesktop
 
 	[ComImport]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-	[Guid("A3175F2D-239C-4BD2-8AA0-EEBA8B0B138E")]
+	[Guid("53F5CA0B-158F-4124-900C-057158060B27")]
 	internal interface IVirtualDesktopManagerInternal
 	{
 		int GetCount();
@@ -176,7 +188,7 @@ namespace VirtualDesktop
 		void UpdateWallpaperPathForAllDesktops([MarshalAs(UnmanagedType.HString)] string path);
 		void CopyDesktopState(IApplicationView pView0, IApplicationView pView1);
 		void CreateRemoteDesktop([MarshalAs(UnmanagedType.HString)] string path, out IVirtualDesktop desktop);
-		void SwitchRemoteDesktop(IVirtualDesktop desktop);
+		void SwitchRemoteDesktop(IVirtualDesktop desktop, IntPtr switchtype);
 		void SwitchDesktopWithAnimation(IVirtualDesktop desktop);
 		void GetLastActiveDesktop(out IVirtualDesktop desktop);
 		void WaitForAnimationToComplete();
@@ -548,8 +560,8 @@ namespace VirtualDesktop
 
 			DesktopManager.VirtualDesktopManagerInternal.SwitchDesktop(ivd);
 
-			// TODO : direct desktop to give away focus
-			// ShowWindow(new IntPtr(wi.Handle), SW_MINIMIZE);
+			// direct desktop to give away focus
+			ShowWindow(new IntPtr(wi.Handle), SW_MINIMIZE);
 		}
 
 		public Desktop Left
@@ -733,7 +745,6 @@ namespace VirtualDesktop
 	#endregion
 }
 
-
 namespace VDeskTool
 {
 
@@ -767,7 +778,7 @@ namespace VDeskTool
         {
 
 
-            if (ModifierKeys == Keys.Control || ModifierKeys == (Keys.Control | Keys.Shift))
+            if (ModifierKeys == Keys.Control || ModifierKeys == (Keys.Control | Keys.Shift | Keys.Alt))
             {
 
                 if (e.KeyCode == Keys.Right)
@@ -912,10 +923,10 @@ namespace VDeskTool
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
 
-			// 現在のデスクトップを残して削除
-			VirtualDesktop.Desktop.RemoveAll();
+            // 現在のデスクトップを残して削除
+            VirtualDesktop.Desktop.RemoveAll();
 
-			base.OnFormClosing(e);
+            base.OnFormClosing(e);
         }
 
         private void Close_Click(object sender, EventArgs e)
@@ -977,10 +988,10 @@ namespace VDeskTool
 
         static void Application_Exit(object sender, EventArgs e)
         {
-			// 現在のデスクトップを残して削除
-			VirtualDesktop.Desktop.RemoveAll();
+            // 現在のデスクトップを残して削除
+            VirtualDesktop.Desktop.RemoveAll();
 
-		}
+        }
 
 
 

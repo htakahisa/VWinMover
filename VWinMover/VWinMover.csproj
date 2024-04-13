@@ -57,6 +57,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="KeyboardHook2.cs" />
+    <Compile Include="Program3.cs" />
     <Compile Include="Program1.cs" />
     <Compile Include="Program2.cs" />
     <Compile Include="Program.cs" />
