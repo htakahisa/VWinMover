@@ -749,7 +749,7 @@ namespace VirtualDesktop
 namespace VDeskTool
 {
 
-    public class MainForm : Form
+    public class MainForm : Form1
     {
 
         private int hight = 3;
@@ -764,16 +764,12 @@ namespace VDeskTool
             hight = VWinMover.Properties.Settings.Default.window_height;
             width = VWinMover.Properties.Settings.Default.window_width;
 
-            this.ShowInTaskbar = false;
             this.setComponents();
 
             // キーボードフックの設定
             keyboardHook = new KeyboardHook2();
 
             keyboardHook.KeyDown += KeyboardHook_KeyDown;
-
-			
-
 
 		}
 
@@ -966,9 +962,6 @@ namespace VDeskTool
             menu.Items.Add(menuItem);
             notifyIcon.ContextMenuStrip = menu;
 
-
-			this.Visible = false; // ウィンドウを非表示にする
-			this.FormBorderStyle = FormBorderStyle.FixedToolWindow; // ウィンドウのスタイルをツールウィンドウに設定
 		}
 
 
@@ -988,10 +981,15 @@ namespace VDeskTool
 
 
             MainForm mainForm = new MainForm();
-            mainForm.WindowState = FormWindowState.Minimized; // アプリを最小化
             Application.Run(mainForm);
 
-        }
+
+			mainForm.Visible = false; // ウィンドウを非表示にする
+			mainForm.FormBorderStyle = FormBorderStyle.FixedToolWindow; // ウィンドウのスタイルをツールウィンドウに設定
+			mainForm.ShowInTaskbar = false;
+			mainForm.WindowState = FormWindowState.Minimized; // アプリを最小化
+
+		}
 
         static void Application_Exit(object sender, EventArgs e)
         {
