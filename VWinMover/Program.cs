@@ -755,9 +755,11 @@ namespace VDeskTool
         private int hight = 3;
         private int width = 3;
 
+		private Boolean isChanging = false;
         private KeyboardHook2 keyboardHook;
         private NotifyIcon notifyIcon;
         private int current = 0;
+		private int nextId = 0;
         public MainForm()
         {
 
@@ -769,148 +771,143 @@ namespace VDeskTool
             // キーボードフックの設定
             keyboardHook = new KeyboardHook2();
 
-            keyboardHook.KeyDown += KeyboardHook_KeyDown;
+            keyboardHook.KeyDown += KeyboardHook_KeyDown2;
+			//keyboardHook.KeyUp += KeyboardHook_KeyUp2;
 
 		}
 
-		// キーボードフックのイベントハンドラ
-		private void KeyboardHook_KeyDown(object sender, KeyEventArgs e)
+		private void KeyboardHook_KeyDown2(object sender, KeyEventArgs e)
         {
+			if (ModifierKeys == (Keys.Control | Keys.Shift ))
+			{
+				if (e.KeyCode == Keys.D1 || e.KeyCode == Keys.D2 || e.KeyCode == Keys.D3
+					|| e.KeyCode == Keys.D4 || e.KeyCode == Keys.D5 || e.KeyCode == Keys.D6 || e.KeyCode == Keys.D7 || e.KeyCode == Keys.D8
+					|| e.KeyCode == Keys.D9)
+				{
+					int keyValue = e.KeyCode.GetHashCode() - 48 - 1;
+					Task.Run(() =>
+						 MoveActiveWindow(keyValue)
+					);
+				}
+				return;
+			}
 
-
-            if (ModifierKeys == Keys.Control || ModifierKeys == (Keys.Control | Keys.Shift | Keys.Alt))
+			// Ctlキーが押されている
+			if (ModifierKeys == Keys.Control)
             {
-
-                if (e.KeyCode == Keys.Right)
+				isChanging = true;
+				if (e.KeyCode == Keys.Right)
                 {
-                    int nextId = current + 1;
-                    if ((current + 1) % width != 0)
+					if ((nextId % width) < width - 1)
                     {
-                        if (ModifierKeys == (Keys.Control | Keys.Shift))
-                        {
-                            Task.Run(() =>
-                                MoveActiveWindow(nextId)
-                             );
-                        }
-
-
-                        Task.Run(() =>
-                            DoAsyncWork(nextId)
-                    );
-                    }
+						nextId += 1;
+						Task.Run(() =>
+							DoAsyncWork2(nextId)
+						);
+						return;
+					}
                 }
-                else if (e.KeyCode == Keys.Left)
+				if (e.KeyCode == Keys.Left)
+				{
+					if (0 < (nextId % width))
+					{
+						nextId -= 1;
+						Task.Run(() =>
+							DoAsyncWork2(nextId)
+						);
+						return;
+					}
+				}
+				if (e.KeyCode == Keys.Down)
                 {
-                    int nextId = current - 1;
-                    if ((current + 1) % width != 1)
+					if ((nextId / hight) < hight - 1)
                     {
-                        if (ModifierKeys == (Keys.Control | Keys.Shift))
-                        {
-                            Task.Run(() =>
-                                MoveActiveWindow(nextId)
-                             );
-                        }
-                        Task.Run(() =>
-                                 DoAsyncWork(nextId)
-
-                            );
-                    }
+						nextId += hight;
+						Task.Run(() =>
+							DoAsyncWork2(nextId)
+						);
+						return;
+					}
                 }
-                else if (e.KeyCode == Keys.Down)
+				if (e.KeyCode == Keys.Up)
                 {
-                    int nextId = current + width;
-                    if (current + 1 <= width * hight - width)
+					if (0 < (nextId / hight))
                     {
-                        if (ModifierKeys == (Keys.Control | Keys.Shift))
-                        {
-                            Task.Run(() =>
-                                MoveActiveWindow(nextId)
-                             );
-                        }
-                        Task.Run(() =>
-                             DoAsyncWork(nextId)
+						nextId -= hight;
+						Task.Run(() =>
+							DoAsyncWork2(nextId)
+						);
+						return;
+					}
+                }
+			}
 
-                        );
-                    }
-                }
-                else if (e.KeyCode == Keys.Up)
-                {
-                    int nextId = current - width;
-                    if (current + 1 >= width + 1)
-                    {
-                        if (ModifierKeys == (Keys.Control | Keys.Shift))
-                        {
-                            Task.Run(() =>
-                                MoveActiveWindow(nextId)
-                             );
-                        }
-                        Task.Run(() =>
-                             DoAsyncWork(nextId)
+		}
 
-                        );
-                    }
-                }
-                // アクティブウインドウの移動
-                else if (e.KeyCode == Keys.D1 || e.KeyCode == Keys.D2 || e.KeyCode == Keys.D3
-                    || e.KeyCode == Keys.D4 || e.KeyCode == Keys.D5 || e.KeyCode == Keys.D6 || e.KeyCode == Keys.D7 || e.KeyCode == Keys.D8
-                    || e.KeyCode == Keys.D9)
-                {
-                    int keyValue = e.KeyCode.GetHashCode() - 48 - 1;
-                    Task.Run(() =>
-                         MoveActiveWindow(keyValue)
-                    );
-                }
+		private async void KeyboardHook_KeyUp2(object sender, KeyEventArgs e)
+		{
+			await Task.Delay(50);
+			if (ModifierKeys == Keys.Control) {
+				return;
+			}
+			if (!isChanging)
+			{
+				return;
+			}
+			if (current == nextId)
+            {
+				return;
             }
+			// Ctlキーが外れたら移動する
+			await Task.Run(() =>
+                    DoAsyncWork2(nextId)
+            );
+			isChanging = false;
 
-        }
 
-        private async Task DoAsyncWork(int idx)
-        {
-            //MessageBox.Show(VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.Current).ToString());
-            // ここに非同期の処理を記述
-            //await Task.Delay(100);
-            VirtualDesktop.Desktop.FromIndex(idx).MakeVisible();
+		}
 
+		private async Task DoAsyncWork2(int idx)
+		{
+			VirtualDesktop.Desktop.FromIndex(idx).MakeVisible();
+			current = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.Current);
             // icon の修正
-            if (idx == 0)
+            if (nextId == 0)
             {
                 notifyIcon.Icon = VWinMover.Properties.Resources._1;
             }
-            else if (idx == 1)
+            else if (nextId == 1)
             {
                 notifyIcon.Icon = VWinMover.Properties.Resources._2;
             }
-            else if (idx == 2)
+            else if (nextId == 2)
             {
                 notifyIcon.Icon = VWinMover.Properties.Resources._3;
             }
-            else if (idx == 3)
+            else if (nextId == 3)
             {
                 notifyIcon.Icon = VWinMover.Properties.Resources._4;
             }
-            else if (idx == 4)
+            else if (nextId == 4)
             {
                 notifyIcon.Icon = VWinMover.Properties.Resources._5;
             }
-            else if (idx == 5)
+            else if (nextId == 5)
             {
                 notifyIcon.Icon = VWinMover.Properties.Resources._6;
             }
-            else if (idx == 6)
+            else if (nextId == 6)
             {
                 notifyIcon.Icon = VWinMover.Properties.Resources._7;
             }
-            else if (idx == 7)
+            else if (nextId == 7)
             {
                 notifyIcon.Icon = VWinMover.Properties.Resources._8;
             }
-            else if (idx == 8)
+            else if (nextId == 8)
             {
                 notifyIcon.Icon = VWinMover.Properties.Resources._9;
             }
-
-            current = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.Current);
-
         }
 
         private async Task MoveActiveWindow(int toDeskTopIndex)
@@ -938,7 +935,7 @@ namespace VDeskTool
         {
             // 通常のフォームのロジックを実行
             current = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.Current);
-
+			nextId = current; // 初期値を設定
 
 
             //現在のデスクトップの数
