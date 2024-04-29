@@ -47,15 +47,23 @@ namespace VWinMover
             {
                 if (nCode >= 0)
                 {
-                    if (wParam == (IntPtr)WM_KEYDOWN)
+                    int vkCode = Marshal.ReadInt32(lParam);
+                    Keys key = (Keys)vkCode;
+                if (wParam == (IntPtr)WM_KEYDOWN)
                     {
-                        int vkCode = Marshal.ReadInt32(lParam);
-                        KeyDown?.Invoke(this, new KeyEventArgs((Keys)vkCode));
+
+                    if (Control.ModifierKeys == Keys.Control && (key == Keys.Right || key == Keys.Left || key == Keys.Up || key == Keys.Down))
+                    {
+
+                        KeyDown?.Invoke(this, new KeyEventArgs(key));
+                        return (IntPtr)1;
                     }
+
+                }
                     else if (wParam == (IntPtr)WM_KEYUP)
                     {
-                        int vkCode = Marshal.ReadInt32(lParam);
-                        KeyUp?.Invoke(this, new KeyEventArgs((Keys)vkCode));
+                        
+                        KeyUp?.Invoke(this, new KeyEventArgs(key));
                     }
                 }
                 return CallNextHookEx(IntPtr.Zero, nCode, wParam, lParam);
