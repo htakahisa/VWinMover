@@ -739,7 +739,7 @@ namespace VirtualDesktop
 		{
 			WindowInformationList = new List<WindowInformation>();
 			EnumWindows(callBackPtr, IntPtr.Zero);
-			WindowInformation result = WindowInformationList.Find(x => x.Title.IndexOf(WindowTitle, StringComparison.OrdinalIgnoreCase) >= 0);
+			WindowInformation result = WindowInformationList.Find(x => x != null && x.Title.IndexOf(WindowTitle, StringComparison.OrdinalIgnoreCase) >= 0);
 			return result;
 		}
 	}
@@ -776,7 +776,7 @@ namespace VDeskTool
 
 		}
 
-		private void KeyboardHook_KeyDown2(object sender, KeyEventArgs e)
+		private async void KeyboardHook_KeyDown2(object sender, KeyEventArgs e)
         {
 			if (ModifierKeys == (Keys.Control | Keys.Shift ))
 			{
@@ -785,7 +785,7 @@ namespace VDeskTool
 					|| e.KeyCode == Keys.D9)
 				{
 					int keyValue = e.KeyCode.GetHashCode() - 48 - 1;
-					Task.Run(() =>
+					await Task.Run(() =>
 						 MoveActiveWindow(keyValue)
 					);
 				}
@@ -801,7 +801,7 @@ namespace VDeskTool
 					if ((nextId % width) < width - 1)
                     {
 						nextId += 1;
-						Task.Run(() =>
+						await Task.Run(() =>
 							DoAsyncWork2(nextId)
 						);
 						return;
@@ -812,7 +812,7 @@ namespace VDeskTool
 					if (0 < (nextId % width))
 					{
 						nextId -= 1;
-						Task.Run(() =>
+						await Task.Run(() =>
 							DoAsyncWork2(nextId)
 						);
 						return;
@@ -823,7 +823,7 @@ namespace VDeskTool
 					if ((nextId / hight) < hight - 1)
                     {
 						nextId += hight;
-						Task.Run(() =>
+						await Task.Run(() =>
 							DoAsyncWork2(nextId)
 						);
 						return;
@@ -834,7 +834,7 @@ namespace VDeskTool
 					if (0 < (nextId / hight))
                     {
 						nextId -= hight;
-						Task.Run(() =>
+						await Task.Run(() =>
 							DoAsyncWork2(nextId)
 						);
 						return;
