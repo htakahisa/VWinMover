@@ -1,6 +1,7 @@
 ﻿
 // TODO : check https://github.com/MScholtes/VirtualDesktop/blob/master/VirtualDesktop11.cs
 // TODO : copy this Program.cs to ProgramX.cs
+// TODO : comment out 「ShowWindow(new IntPtr(wi.Handle), SW_MINIMIZE);」
 // TODO : refresh "VirtualDesktop" namespace on this Program.cs
 // TODO : might be refresh from "refresh below" to end.
 
@@ -17,6 +18,7 @@ using System.Threading;
 using VirtualDesktop;
 using VWinMover;
 using System.Configuration;
+using System.Drawing;
 
 // set attributes
 //using System.Reflection;
@@ -565,7 +567,7 @@ namespace VirtualDesktop
 			DesktopManager.VirtualDesktopManagerInternal.SwitchDesktop(ivd);
 
 			// direct desktop to give away focus
-			ShowWindow(new IntPtr(wi.Handle), SW_MINIMIZE);
+			//ShowWindow(new IntPtr(wi.Handle), SW_MINIMIZE);
 		}
 
 		public Desktop Left
