@@ -4,12 +4,14 @@
 // TODO : refresh "VirtualDesktop" namespace on this Program.cs
 // TODO : might be refresh from "refresh below" to end.
 
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 
 // set attributes
 using VirtualDesktop;
@@ -541,7 +543,8 @@ namespace VirtualDesktop
 		}
 
 		public void MakeVisible()
-		{ // make this desktop visible
+		{ 
+			// make this desktop visible
 			WindowInformation wi = FindWindow("Program Manager");
 
 			// activate desktop to prevent flashing icons in taskbar
@@ -760,7 +763,12 @@ namespace VDeskTool
         private NotifyIcon notifyIcon;
         private int current = 0;
 		private int nextId = 0;
-        public MainForm()
+
+		private Queue<int> myQueue = new Queue<int>();
+		private object queueLock = new object();
+		private AutoResetEvent queueEvent = new AutoResetEvent(false);
+
+		public MainForm()
         {
 
             hight = VWinMover.Properties.Settings.Default.window_height;
@@ -773,6 +781,11 @@ namespace VDeskTool
 
             keyboardHook.KeyDown += KeyboardHook_KeyDown2;
 			//keyboardHook.KeyUp += KeyboardHook_KeyUp2;
+
+			// バックグラウンドスレッドを開始して ProcessQueue() を呼び出す
+			Thread processingThread = new Thread(this.ProcessQueue);
+			processingThread.IsBackground = true;
+			processingThread.Start();
 
 		}
 
@@ -801,9 +814,9 @@ namespace VDeskTool
 					if ((nextId % width) < width - 1)
                     {
 						nextId += 1;
-						await Task.Run(() =>
-							DoAsyncWork2(nextId)
-						);
+						//await Task.Run(() =>
+						AddToQueue(nextId);
+						//);
 						return;
 					}
                 }
@@ -812,9 +825,9 @@ namespace VDeskTool
 					if (0 < (nextId % width))
 					{
 						nextId -= 1;
-						await Task.Run(() =>
-							DoAsyncWork2(nextId)
-						);
+						//await Task.Run(() =>
+						AddToQueue(nextId);
+						//);
 						return;
 					}
 				}
@@ -823,9 +836,9 @@ namespace VDeskTool
 					if ((nextId / hight) < hight - 1)
                     {
 						nextId += hight;
-						await Task.Run(() =>
-							DoAsyncWork2(nextId)
-						);
+						//await Task.Run(() =>
+						AddToQueue(nextId);
+						//);
 						return;
 					}
                 }
@@ -834,9 +847,9 @@ namespace VDeskTool
 					if (0 < (nextId / hight))
                     {
 						nextId -= hight;
-						await Task.Run(() =>
-							DoAsyncWork2(nextId)
-						);
+						//await Task.Run(() =>
+						AddToQueue(nextId);
+						//);
 						return;
 					}
                 }
@@ -864,13 +877,42 @@ namespace VDeskTool
             );
 			isChanging = false;
 
-
 		}
 
-		private async Task DoAsyncWork2(int idx)
+		/**
+		 * キューに nextId をセット
+		 */
+		private void AddToQueue(int value)
 		{
+			lock (queueLock)
+			{
+				myQueue.Enqueue(value);
+				queueEvent.Set(); // キューに値が追加されたことを通知
+			}
+		}
+
+		private void ProcessQueue()
+		{
+			while (true)
+			{
+				queueEvent.WaitOne(); // キューに値が追加されるまで待機
+				lock (queueLock)
+				{
+					while (myQueue.Count > 0)
+					{
+						int value = myQueue.Dequeue();
+						DoAsyncWork2(value);
+					}
+				}
+			}
+		}
+
+		private void DoAsyncWork2(int idx)
+		{
+			
 			VirtualDesktop.Desktop.FromIndex(idx).MakeVisible();
 			current = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.Current);
+			
             // icon の修正
             if (nextId == 0)
             {
