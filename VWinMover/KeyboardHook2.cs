@@ -53,7 +53,7 @@ namespace VWinMover
                     {
 
                     if ((Control.ModifierKeys == Keys.Control && (key == Keys.Right || key == Keys.Left || key == Keys.Up || key == Keys.Down))
-                        || (Control.ModifierKeys == (Keys.Control | Keys.Shift))
+                        || (Control.ModifierKeys == (Keys.Control | Keys.Shift | Keys.Alt))
                         && (key == Keys.D1 || key == Keys.D2 || key == Keys.D3 || key == Keys.D4 || key == Keys.D5
                         || key == Keys.D6 || key == Keys.D7 || key == Keys.D8 || key == Keys.D9 || key == Keys.D0))
                     {

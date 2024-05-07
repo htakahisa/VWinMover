@@ -793,7 +793,7 @@ namespace VDeskTool
 
 		private async void KeyboardHook_KeyDown2(object sender, KeyEventArgs e)
         {
-			if (ModifierKeys == (Keys.Control | Keys.Shift ))
+			if (ModifierKeys == (Keys.Control | Keys.Shift | Keys.Alt ))
 			{
 				if (e.KeyCode == Keys.D1 || e.KeyCode == Keys.D2 || e.KeyCode == Keys.D3
 					|| e.KeyCode == Keys.D4 || e.KeyCode == Keys.D5 || e.KeyCode == Keys.D6 || e.KeyCode == Keys.D7 || e.KeyCode == Keys.D8
