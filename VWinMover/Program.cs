@@ -759,6 +759,7 @@ namespace VDeskTool
 
         private int hight = 3;
         private int width = 3;
+		private bool closeAllVdWhenEndApp = true;
 
 		private Boolean isChanging = false;
         private KeyboardHook2 keyboardHook;
@@ -775,8 +776,10 @@ namespace VDeskTool
 
             hight = VWinMover.Properties.Settings.Default.window_height;
             width = VWinMover.Properties.Settings.Default.window_width;
+			closeAllVdWhenEndApp = VWinMover.Properties.Settings.Default.close_all_vd_when_end_app;
 
-            this.setComponents();
+
+			this.setComponents();
 
             // キーボードフックの設定
             keyboardHook = new KeyboardHook2();
@@ -963,9 +966,11 @@ namespace VDeskTool
         // フォームが閉じられるときの処理
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-
-            // 現在のデスクトップを残して削除
-            VirtualDesktop.Desktop.RemoveAll();
+			if (this.closeAllVdWhenEndApp)
+			{
+				// 現在のデスクトップを残して削除
+				VirtualDesktop.Desktop.RemoveAll();
+			}
 
             base.OnFormClosing(e);
         }

@@ -46,5 +46,17 @@ namespace VWinMover.Properties {
                 this["window_width"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool close_all_vd_when_end_app {
+            get {
+                return ((bool)(this["close_all_vd_when_end_app"]));
+            }
+            set {
+                this["close_all_vd_when_end_app"] = value;
+            }
+        }
     }
 }
