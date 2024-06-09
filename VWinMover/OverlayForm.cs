@@ -1,0 +1,117 @@
+﻿using System;
+using System.Drawing;
+using System.Windows.Forms;
+
+namespace WindowsFormsApp
+{
+    public class OverlayForm : Form
+    {
+        private Panel[] panels;
+        private PictureBox[] pictureBoxes;
+
+        public OverlayForm(int currentDesktop)
+        {
+            // Initialize the overlay form
+            this.FormBorderStyle = FormBorderStyle.None;
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.BackColor = Color.Black;
+            this.Opacity = 0.3; // Set opacity to make the form semi-transparent
+            this.Width = 800;
+            this.Height = 800;
+            this.TopMost = true;
+
+            // Create and initialize the grid
+            InitializeGrid();
+
+            // Highlight the current desktop
+            HighlightCurrentDesktop(currentDesktop);
+        }
+
+        private void InitializeGrid()
+        {
+            // Create the TableLayoutPanel
+            var tableLayoutPanel = new TableLayoutPanel
+            {
+                RowCount = VWinMover.Properties.Settings.Default.window_height,
+                ColumnCount = VWinMover.Properties.Settings.Default.window_width,
+                Dock = DockStyle.Fill
+            };
+
+            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33F));
+            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33F));
+            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33F));
+            tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 33F));
+            tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 33F));
+            tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 33F));
+
+            panels = new Panel[9];
+            pictureBoxes = new PictureBox[9];
+
+            // Create PictureBox controls and set images from resources
+            pictureBoxes[0] = CreatePictureBox(VWinMover.Properties.Resources._1img);
+            pictureBoxes[1] = CreatePictureBox(VWinMover.Properties.Resources._2img);
+            pictureBoxes[2] = CreatePictureBox(VWinMover.Properties.Resources._3img);
+            pictureBoxes[3] = CreatePictureBox(VWinMover.Properties.Resources._4img);
+            pictureBoxes[4] = CreatePictureBox(VWinMover.Properties.Resources._5img);
+            pictureBoxes[5] = CreatePictureBox(VWinMover.Properties.Resources._6img);
+            pictureBoxes[6] = CreatePictureBox(VWinMover.Properties.Resources._7img);
+            pictureBoxes[7] = CreatePictureBox(VWinMover.Properties.Resources._8img);
+            pictureBoxes[8] = CreatePictureBox(VWinMover.Properties.Resources._9img);
+
+            for (int i = 0; i < 9; i++)
+            {
+                panels[i] = new Panel
+                {
+                    Dock = DockStyle.Fill,
+                    Padding = new Padding(10) // Optional: Add padding for better visibility
+                };
+                panels[i].Controls.Add(pictureBoxes[i]);
+            }
+
+            // Add Panel controls to the TableLayoutPanel
+            tableLayoutPanel.Controls.Add(panels[0], 0, 0);
+            tableLayoutPanel.Controls.Add(panels[1], 1, 0);
+            tableLayoutPanel.Controls.Add(panels[2], 2, 0);
+            tableLayoutPanel.Controls.Add(panels[3], 0, 1);
+            tableLayoutPanel.Controls.Add(panels[4], 1, 1);
+            tableLayoutPanel.Controls.Add(panels[5], 2, 1);
+            tableLayoutPanel.Controls.Add(panels[6], 0, 2);
+            tableLayoutPanel.Controls.Add(panels[7], 1, 2);
+            tableLayoutPanel.Controls.Add(panels[8], 2, 2);
+
+            // Add the TableLayoutPanel to the form
+            this.Controls.Add(tableLayoutPanel);
+        }
+
+        private PictureBox CreatePictureBox(Image image)
+        {
+            var pictureBox = new PictureBox
+            {
+                Dock = DockStyle.Fill,
+                SizeMode = PictureBoxSizeMode.Zoom,
+                Image = image
+            };
+            return pictureBox;
+        }
+
+        public void HighlightCurrentDesktop(int nextId)
+        {
+            
+            // Ensure the index is within the valid range
+            if (nextId < 0 || nextId > 8) return;
+
+            // Highlight the selected desktop by changing the panel's background color
+            for (int i = 0; i < panels.Length; i++)
+            {
+                if (i == nextId)
+                {
+                    panels[i].BackColor = Color.Yellow; // Highlight color
+                }
+                else
+                {
+                    panels[i].BackColor = Color.Transparent; // Default color
+                }
+            }
+        }
+    }
+}

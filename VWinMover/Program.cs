@@ -19,6 +19,7 @@ using VirtualDesktop;
 using VWinMover;
 using System.Configuration;
 using System.Drawing;
+using WindowsFormsApp;
 
 // set attributes
 //using System.Reflection;
@@ -770,6 +771,7 @@ namespace VDeskTool
 		private Queue<int> myQueue = new Queue<int>();
 		private object queueLock = new object();
 		private AutoResetEvent queueEvent = new AutoResetEvent(false);
+		private OverlayForm overlayForm;
 
 		public MainForm()
         {
@@ -785,10 +787,10 @@ namespace VDeskTool
             keyboardHook = new KeyboardHook2();
 
             keyboardHook.KeyDown += KeyboardHook_KeyDown2;
-			//keyboardHook.KeyUp += KeyboardHook_KeyUp2;
+			keyboardHook.KeyUp += KeyboardHook_KeyUp2;
 
-			// バックグラウンドスレッドを開始して ProcessQueue() を呼び出す
-			Thread processingThread = new Thread(this.ProcessQueue);
+            // バックグラウンドスレッドを開始して ProcessQueue() を呼び出す
+            Thread processingThread = new Thread(this.ProcessQueue);
 			processingThread.IsBackground = true;
 			processingThread.Start();
 
@@ -819,9 +821,8 @@ namespace VDeskTool
 					if ((nextId % width) < width - 1)
                     {
 						nextId += 1;
-						//await Task.Run(() =>
-						AddToQueue(nextId);
-						//);
+						//AddToQueue(nextId);
+						showOverlayForm();
 						return;
 					}
                 }
@@ -830,9 +831,8 @@ namespace VDeskTool
 					if (0 < (nextId % width))
 					{
 						nextId -= 1;
-						//await Task.Run(() =>
-						AddToQueue(nextId);
-						//);
+						//AddToQueue(nextId);
+						showOverlayForm();
 						return;
 					}
 				}
@@ -841,9 +841,8 @@ namespace VDeskTool
 					if ((nextId / hight) < hight - 1)
                     {
 						nextId += hight;
-						//await Task.Run(() =>
-						AddToQueue(nextId);
-						//);
+						//AddToQueue(nextId);
+						showOverlayForm();
 						return;
 					}
                 }
@@ -852,9 +851,8 @@ namespace VDeskTool
 					if (0 < (nextId / hight))
                     {
 						nextId -= hight;
-						//await Task.Run(() =>
-						AddToQueue(nextId);
-						//);
+						//AddToQueue(nextId);
+						showOverlayForm();
 						return;
 					}
                 }
@@ -870,19 +868,44 @@ namespace VDeskTool
 			}
 			if (!isChanging)
 			{
+				closeOverlayForm();
 				return;
 			}
 			if (current == nextId)
             {
+				closeOverlayForm();
 				return;
             }
 			// Ctlキーが外れたら移動する
-			await Task.Run(() =>
-                    DoAsyncWork2(nextId)
-            );
+			closeOverlayForm();
+			AddToQueue(nextId);
 			isChanging = false;
 
 		}
+
+		private void showOverlayForm()
+        {
+			if (overlayForm == null)
+			{
+				overlayForm = new OverlayForm(nextId);
+				overlayForm.Show();
+
+			}
+			else
+			{
+				overlayForm.HighlightCurrentDesktop(nextId);
+			}
+
+		}
+
+		private void closeOverlayForm()
+        {
+			if (overlayForm != null)
+            {
+				overlayForm.Close();
+				overlayForm = null;
+			}
+        }
 
 		/**
 		 * キューに nextId をセット
