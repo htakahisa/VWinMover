@@ -815,6 +815,7 @@ namespace VDeskTool
 			// Ctlキーが押されている
 			if (ModifierKeys == Keys.Control)
             {
+
 				isChanging = true;
 				if (e.KeyCode == Keys.Right)
                 {

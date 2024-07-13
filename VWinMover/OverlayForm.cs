@@ -9,6 +9,10 @@ namespace WindowsFormsApp
         private Panel[] panels;
         private PictureBox[] pictureBoxes;
 
+        private int panelHight = 3;
+        private int panelWidth = 3;
+        private int panelAll = 9;
+
         public OverlayForm(int currentDesktop)
         {
             // Initialize the overlay form
@@ -19,6 +23,10 @@ namespace WindowsFormsApp
             this.Width = 800;
             this.Height = 800;
             this.TopMost = true;
+
+            panelHight = VWinMover.Properties.Settings.Default.window_height;
+            panelWidth = VWinMover.Properties.Settings.Default.window_width;
+            panelAll = panelHight * panelWidth;
 
             // Create and initialize the grid
             InitializeGrid();
@@ -44,21 +52,19 @@ namespace WindowsFormsApp
             tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 33F));
             tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 33F));
 
-            panels = new Panel[9];
-            pictureBoxes = new PictureBox[9];
+            panels = new Panel[panelAll];
+            pictureBoxes = new PictureBox[panelAll];
 
             // Create PictureBox controls and set images from resources
-            pictureBoxes[0] = CreatePictureBox(VWinMover.Properties.Resources._1img);
-            pictureBoxes[1] = CreatePictureBox(VWinMover.Properties.Resources._2img);
-            pictureBoxes[2] = CreatePictureBox(VWinMover.Properties.Resources._3img);
-            pictureBoxes[3] = CreatePictureBox(VWinMover.Properties.Resources._4img);
-            pictureBoxes[4] = CreatePictureBox(VWinMover.Properties.Resources._5img);
-            pictureBoxes[5] = CreatePictureBox(VWinMover.Properties.Resources._6img);
-            pictureBoxes[6] = CreatePictureBox(VWinMover.Properties.Resources._7img);
-            pictureBoxes[7] = CreatePictureBox(VWinMover.Properties.Resources._8img);
-            pictureBoxes[8] = CreatePictureBox(VWinMover.Properties.Resources._9img);
+            for (int i = 0; i < pictureBoxes.Length; i++)
+            {
+                string resourceName = $"_{i + 1}img";
+                pictureBoxes[i] = 
+                    CreatePictureBox((Image)VWinMover.Properties.Resources.ResourceManager
+                        .GetObject(resourceName));
+            }
 
-            for (int i = 0; i < 9; i++)
+            for (int i = 0; i < panelAll; i++)
             {
                 panels[i] = new Panel
                 {
@@ -69,15 +75,14 @@ namespace WindowsFormsApp
             }
 
             // Add Panel controls to the TableLayoutPanel
-            tableLayoutPanel.Controls.Add(panels[0], 0, 0);
-            tableLayoutPanel.Controls.Add(panels[1], 1, 0);
-            tableLayoutPanel.Controls.Add(panels[2], 2, 0);
-            tableLayoutPanel.Controls.Add(panels[3], 0, 1);
-            tableLayoutPanel.Controls.Add(panels[4], 1, 1);
-            tableLayoutPanel.Controls.Add(panels[5], 2, 1);
-            tableLayoutPanel.Controls.Add(panels[6], 0, 2);
-            tableLayoutPanel.Controls.Add(panels[7], 1, 2);
-            tableLayoutPanel.Controls.Add(panels[8], 2, 2);
+            int winTotal = 0;
+            for (int row = 0; row < panelHight; row++)
+            {
+                for (int column = 0; column < panelWidth; column++)
+                {
+                    tableLayoutPanel.Controls.Add(panels[winTotal++], column, row);
+                }
+            }
 
             // Add the TableLayoutPanel to the form
             this.Controls.Add(tableLayoutPanel);
